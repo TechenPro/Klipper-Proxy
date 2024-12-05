@@ -1,0 +1,57 @@
+services:
+  klipper1:
+    image: ghcr.io/mainsail-crew/virtual-klipper-printer:master
+    container_name: klipper1
+    networks:
+      - printers_net
+    volumes:
+      - ./printer_data/klipper1:/home/printer/printer_data:delegated
+      - ./gcodes:/tmp/gcodes:ro
+    entrypoint: >
+      sh -c "
+      mkdir -p /home/printer/printer_data/gcodes/ &&
+      cp /tmp/gcodes/code1.gcode /home/printer/printer_data/gcodes/ &&
+      /bin/start
+      "
+
+  klipper2:
+    image: ghcr.io/mainsail-crew/virtual-klipper-printer:master
+    container_name: klipper2
+    networks:
+      - printers_net
+    volumes:
+      - ./printer_data/klipper2:/home/printer/printer_data:delegated
+      - ./gcodes:/tmp/gcodes:ro
+    entrypoint: >
+      sh -c "
+      mkdir -p /home/printer/printer_data/gcodes/ &&
+      cp /tmp/gcodes/code2.gcode /home/printer/printer_data/gcodes/ &&
+      /bin/start
+      "
+
+  fluidd:
+    image: ghcr.io/fluidd-core/fluidd
+    container_name: fluidd
+    networks:
+      - fluidd_net
+    ports:
+      - "8080:80" # Expose Fluidd interface
+
+  proxy:
+    build:
+      context: ./proxy
+      dockerfile: Dockerfile
+    container_name: proxy
+    networks:
+      - printers_net
+      - fluidd_net
+    environment:
+      - DEBUG=true
+    ports:
+      - "8081:8080" # For local debugging (optional)
+
+networks:
+  printers_net:
+    driver: bridge
+  fluidd_net:
+    driver: bridge
