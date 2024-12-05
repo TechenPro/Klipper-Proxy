@@ -48,7 +48,20 @@ services:
     environment:
       - DEBUG=true
     ports:
-      - "8081:8080" # For local debugging (optional)
+      - "8081:8080"
+
+  kali-linux:
+    build:
+      context: ./kali-custom
+      dockerfile: Dockerfile
+    container_name: kali
+    networks:
+      - printers_net
+    cap_add:
+      - NET_RAW
+      - NET_ADMIN
+    tty: true
+    stdin_open: true
 
 networks:
   printers_net:
