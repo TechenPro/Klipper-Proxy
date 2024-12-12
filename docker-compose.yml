@@ -56,7 +56,7 @@ services:
       dockerfile: Dockerfile
     container_name: kali
     networks:
-      - printers_net
+      - fluidd_net
     cap_add:
       - NET_RAW
       - NET_ADMIN
